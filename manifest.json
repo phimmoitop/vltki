@@ -1,6 +1,6 @@
 {
-  "name": "Võ Lâm Mobile",
-  "short_name": "Võ Lâm",
+  "name": "Võ Lâm Truyền Kỳ",
+  "short_name": "Võ Lâm Truyền Kỳ",
   "start_url": "./index.html", 
   "display": "standalone",
   "orientation": "landscape",
