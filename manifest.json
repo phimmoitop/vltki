@@ -2,7 +2,7 @@
   "name": "Võ Lâm Truyền Kỳ",
   "short_name": "Võ Lâm Truyền Kỳ",
   "start_url": "./index.html", 
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "background_color": "#000000",
   "theme_color": "#000000",
