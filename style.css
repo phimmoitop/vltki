@@ -1,105 +1,100 @@
-/* Reset cơ bản */
+/* Reset & Căn bản */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
+    user-select: none; /* Ngăn chọn văn bản để giống App hơn */
 }
 
 body {
     background-color: #121212;
     color: #ffffff;
-    font-family: 'Segoe UI', sans-serif;
-    overflow: hidden; /* Ẩn thanh cuộn thừa */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden; 
     width: 100vw;
     height: 100vh;
+    position: fixed; /* Khóa cuộn trang trên iOS */
+}
+
+/* --- OVERLAY MÀN HÌNH CHỜ --- */
+#start-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #000;
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: white;
+    transition: opacity 0.5s;
 }
+.start-content { text-align: center; cursor: pointer; }
 
-/* Container chính của App */
+/* --- APP CONTAINER --- */
 #app-container {
     width: 100vw;
     height: 100vh;
     background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
     display: flex;
     flex-direction: column;
-    position: relative;
-    overflow-y: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Xử lý vùng an toàn cho tai thỏ (Safe Area) */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top); 
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* --- LOGIC XOAY MÀN HÌNH --- */
+/* --- LOGIC XOAY MÀN HÌNH (MAGIC CSS) --- */
 
-/* Nếu màn hình đang ở chế độ DỌC (Portrait) -> Ép xoay ngang */
+/* Khi màn hình DỌC (Portrait) -> Xoay 90 độ */
 @media screen and (orientation: portrait) {
     #app-container {
-        width: 100vh; /* Đảo chiều rộng thành cao */
-        height: 100vw; /* Đảo chiều cao thành rộng */
-        transform: rotate(90deg); /* Xoay 90 độ */
-        transform-origin: center; /* Tâm xoay ở giữa */
-        
-        /* Căn chỉnh lại vị trí do xoay */
-        position: absolute;
+        width: 100vh;
+        height: 100vw;
+        /* Định vị tâm để xoay chuẩn */
         top: 50%;
         left: 50%;
-        margin-left: -50vh; /* Căn giữa thủ công sau khi xoay */
-        margin-top: -50vw;
+        transform: translate(-50%, -50%) rotate(90deg);
+        
+        /* Khi xoay dọc, Safe Area đảo chiều, cần reset padding */
+        padding: 0; 
+        /* Ép full viền bằng cách scale nhẹ nếu cần thiết trên một số máy */
     }
 }
 
-/* --- GIAO DIỆN NỘI DUNG (CSS Của App) --- */
+/* --- GIAO DIỆN BÊN TRONG --- */
 header {
-    background-color: #007acc;
-    padding: 15px 20px;
+    background: rgba(0, 122, 204, 0.9);
+    padding: 15px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-header h1 {
-    font-size: 1.2rem;
-}
-
-button {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.4);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-left: 10px;
-}
-
-button:hover {
-    background: rgba(255,255,255,0.4);
+    align-items: center;
+    backdrop-filter: blur(10px); /* Hiệu ứng mờ như iOS */
 }
 
 main {
     padding: 20px;
     display: flex;
-    gap: 20px;
+    gap: 15px;
     height: 100%;
+    overflow-y: auto; /* Cho phép cuộn nội dung bên trong */
 }
 
 .card {
     background: #333;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     flex: 1;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .chart-placeholder {
     width: 100%;
-    height: 100px;
+    height: 80%;
     background: #444;
+    border-radius: 8px;
     margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #888;
-    border: 2px dashed #555;
 }
