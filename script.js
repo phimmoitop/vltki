@@ -1,21 +1,52 @@
-// Đăng ký Service Worker
+// --- Service Worker (Giữ nguyên) ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker đã đăng ký!', reg))
-            .catch(err => console.log('Lỗi SW:', err));
+        navigator.serviceWorker.register('./sw.js');
     });
 }
 
-// Xử lý nút Cài đặt App (PWA Install Prompt)
+// --- XỬ LÝ FULLSCREEN & XOAY ---
+
+const overlay = document.getElementById('start-overlay');
+const appContainer = document.getElementById('app-container');
+
+// Hàm kích hoạt Fullscreen
+function enterFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => console.log(err));
+    } else if (elem.webkitRequestFullscreen) { /* Safari */
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE11 */
+        elem.msRequestFullscreen();
+    }
+}
+
+// Khi người dùng chạm vào Overlay -> Vào app & Fullscreen
+overlay.addEventListener('click', () => {
+    enterFullscreen();
+    
+    // Ẩn Overlay
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 500);
+
+    // Kích hoạt khóa xoay màn hình (chỉ Android hỗ trợ API này)
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(e => {
+            console.log('Thiết bị không hỗ trợ khóa xoay phần cứng, dùng CSS thay thế.');
+        });
+    }
+});
+
+// --- XỬ LÝ CÀI ĐẶT PWA ---
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Ngăn Chrome tự động hiện popup cũ
     e.preventDefault();
     deferredPrompt = e;
-    // Hiện nút cài đặt của mình
     installBtn.style.display = 'block';
 });
 
@@ -24,24 +55,9 @@ installBtn.addEventListener('click', () => {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
-                console.log('Người dùng đã cài đặt');
                 installBtn.style.display = 'none';
             }
             deferredPrompt = null;
         });
-    }
-});
-
-// Xử lý Fullscreen
-const fullscreenBtn = document.getElementById('fullscreenBtn');
-fullscreenBtn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.log(`Lỗi fullscreen: ${err.message}`);
-        });
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
     }
 });
