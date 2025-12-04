@@ -10,7 +10,7 @@
 <meta content='#000000' name='theme-color'/>
 <meta content='autoRotate:disabled' http-equiv='ScreenOrientation'/>
 <link rel="manifest" href="manifest.json">
-<b:skin><![CDATA[ 
+<style>
 @font-face { 
   font-family: "Oswald";
   font-weight: 100 900;
@@ -121,7 +121,7 @@ html, body { font-family: 'Oswald', sans-serif;width: 100%; height: calc(var(--v
 #EXPBar{background-position:-205px -0px;}
 #HPBar{background-position:-405px -0px;}
 #MPBar{background-position:-605px -0px;}
-]]></b:skin>
+</style>
 </head>
 
 
@@ -144,7 +144,6 @@ html, body { font-family: 'Oswald', sans-serif;width: 100%; height: calc(var(--v
 </div>
 
 <script>
-//<![CDATA[
 // Hàm set % cho từng thanh (0-100)
 function setBar(barId, percent) {
     const bar = document.getElementById(barId);
@@ -158,7 +157,6 @@ setBar('HPBar',100);
 setBar('MPBar',75);
 setBar('EXPBar',80);
 
-//]]>
 </script>
 </div>
 
@@ -177,7 +175,6 @@ setBar('EXPBar',80);
 
 
 <script>
-//<![CDATA[
 // ============================================================================
 // PHẦN 1: CẤU HÌNH DỮ LIỆU (CONFIG)
 // ============================================================================
@@ -1325,7 +1322,6 @@ window.playerInfo = playerInfo;
     });
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-//]]>
 </script>
 
 </body>
