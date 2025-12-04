@@ -3,50 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- Meta tag ép iOS full -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <title>Game V6 Final</title>
+    <title>Game Web Full</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <!-- POPUP ANDROID -->
+    <!-- POPUP ANDROID (Mặc định ẩn) -->
     <div id="popup-android">
         <div class="popup-box">
-            <h3>Cài đặt Game</h3>
-            <p id="install-status">Đang kiểm tra tính năng cài đặt...</p>
+            <h3>Cấu hình Game</h3>
+            <p>Chọn chế độ hiển thị:</p>
             
             <div class="popup-actions">
-                <!-- Nút Cài đặt: Luôn hiện, xử lý logic bên trong -->
-                <button id="btn-install" class="btn primary">📲 Cài đặt App</button>
+                <!-- Nút Cài đặt: Sẽ tự hiện khi Android báo sẵn sàng -->
+                <button id="btn-install" class="btn primary" style="display:none;">📲 Cài đặt App</button>
                 
                 <button id="btn-fullscreen" class="btn secondary">⛶ Chơi Full Screen</button>
-                
                 <button id="btn-close" class="btn outline">✕ Đóng</button>
             </div>
-            <div class="debug-msg" id="debug-log"></div>
+            <p style="font-size: 10px; color: #666; margin-top:10px">Lưu ý: Nếu không thấy nút cài, hãy đợi vài giây.</p>
         </div>
     </div>
 
     <!-- GAME CONTAINER -->
     <div id="game-container">
-        <div class="bg-layer"></div>
+        <!-- Background trùm ra ngoài (Fix vệt đen) -->
+        <div class="bg-oversize"></div>
+        
+        <!-- Nội dung chính (Giữ an toàn bên trong) -->
         <div class="ui-content">
-            <div class="header">
-                <div class="avatar">👤</div>
-                <div class="info">User: Admin</div>
-            </div>
+            <div class="header">User: HiepKhach</div>
             <div class="center-stage">
-                <h1>V6: HARDCORE FULL</h1>
-                <p id="screen-info">Loading size...</p>
+                <h1>VÕ LÂM WEB</h1>
+                <p id="status-debug">Đang tải...</p>
             </div>
             <div class="controls">
-                <div class="btn-circle">A</div>
-                <div class="btn-circle">B</div>
+                <div class="btn-skill">A</div>
+                <div class="btn-skill">B</div>
             </div>
         </div>
     </div>
