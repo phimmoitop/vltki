@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
+  <link rel="manifest" href="manifest.json">
+    <title>Web App Landscape Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            touch-action: none;
+            -webkit-user-select: none; 
+        }
+
+        @media screen and (orientation: portrait) {
+            html {
+                transform: rotate(90deg);
+                transform-origin: top left;
+                width: 100vh;
+                height: 100vw;
+                position: absolute;
+                top: 0;
+                left: 100%;
+            }
+        }
+
+        @media screen and (orientation: landscape) {
+            body, html {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        #HomeScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        #HomeImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #HomeWelcome {
+            position: absolute;
+            bottom: 20%;
+            text-align: center;
+            font-size: 28px;
+            color: #fff;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        #content {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: #f5f5f5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            color: #2c3e50;
+            background-color: #fff;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        @supports (-webkit-touch-callout: none) {
+            body {
+                height: -webkit-fill-available;
+            }
+            #content {
+                height: -webkit-fill-available;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="HomeScreen">
+        <img id="HomeImage" src="https://p21-ad-sg.ibyteimg.com/obj/ad-site-i18n-sg/202503245d0d74bd2ee44c344134a5d6">
+        <div id="HomeWelcome">Chào Mừng Đến Với Võ Lâm Truyền Kỳ</div>
+    </div>
+
+    <div id="content">
+        <header>
+            <h1>Ứng Dụng Web Của Tôi</h1>
+        </header>
+        <div class="main-container">
+            <div class="card">
+                <h2>Chào mừng bạn đến với ứng dụng web của tôi!</h2>
+                <p>Đây là nội dung mẫu cho ứng dụng. Bạn có thể thay đổi nội dung này theo ý muốn.</p>
+            </div>
+            <div class="card">
+                <h2>Thử nghiệm nhập liệu</h2>
+                <p>Nhập văn bản vào ô bên dưới để kiểm tra bàn phím ở chế độ ngang:</p>
+                <input type="text" id="textInput" placeholder="Nhập văn bản ở đây..." style="width: 100%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #ddd;">
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Đặt cờ để theo dõi khi nào đã sẵn sàng xoay
+    let rotationReady = false;
+    let fullscreenRequested = false;
+
+    // Hàm xử lý toàn màn hình cải tiến cho Android
+    function handleAndroidFullscreen() {
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        if (isAndroid) {
+            // Phương pháp 1: Dùng thẻ meta để yêu cầu toàn màn hình trên Android
+            const metaFullscreen = document.createElement('meta');
+            metaFullscreen.name = 'mobile-web-app-capable';
+            metaFullscreen.content = 'yes';
+            document.head.appendChild(metaFullscreen);
+            
+            // Phương pháp 2: Sử dụng Fullscreen API với độ trễ
+            setTimeout(() => {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+                
+                // Ẩn thanh địa chỉ - thử nhiều lần
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => window.scrollTo(0, 1), 300 * i);
+                }
+            }, 300);
+            
+            // Phương pháp 3: Điều chỉnh kích thước và vị trí để che đi thanh địa chỉ
+            document.body.style.height = (window.innerHeight + 80) + 'px';
+            window.scrollTo(0, 1);
+        }
+    }
+
+    // Hàm xử lý fullscreen cho iOS
+    function handleIOSFullscreen() {
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isIOS) {
+            const element = document.documentElement;
+            if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            }
+            window.scrollTo(0, 1);
+        }
+    }
+
+    // Hàm tối ưu ẩn thanh địa chỉ cho Android
+    function hideAddressBarAndroid() {
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        if (isAndroid) {
+            window.scrollTo(0, 1);
+            document.body.style.height = (window.innerHeight + 80) + 'px';
+            window.scrollTo(0, 1);
+            
+            setTimeout(() => {
+                document.body.style.height = window.innerHeight + 'px';
+            }, 500);
+        }
+    }
+
+    // Hàm tối ưu ẩn thanh địa chỉ cho iOS
+    function hideAddressBarIOS() {
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isIOS) {
+            window.scrollTo(0, 1);
+        }
+    }
+
+    // Hàm requestFullscreen tổng quát
+    function requestFullscreen() {
+        if (fullscreenRequested) return;
+        fullscreenRequested = true;
+        
+        const element = document.documentElement;
+        if (element.requestFullscreen) element.requestFullscreen();
+        else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen();
+        
+        // Xử lý đặc biệt cho từng hệ điều hành
+        handleAndroidFullscreen();
+        handleIOSFullscreen();
+        
+        setTimeout(() => {
+            window.scrollTo(0, 1);
+            setTimeout(() => window.scrollTo(0, 1), 200);
+            rotationReady = true;
+            updateViewportSize();
+        }, 500);
+    }
+
+    function updateViewportSize() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        document.getElementById('content').style.height = `${window.innerHeight}px`;
+    }
+
+    function preventPullToRefresh() {
+        document.body.style.overscrollBehavior = 'none';
+    }
+
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchMoved = false;
+
+    function handleTouchStart(e) {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+        touchMoved = false;
+    }
+
+    function handleTouchMove(e) {
+        const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+        const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+        if (deltaY > 5 || deltaX > 5) {
+            touchMoved = true;
+            e.preventDefault();
+        }
+    }
+
+    function forceInitialPortraitAndFullscreen() {
+        const isLandscape = window.innerWidth > window.innerHeight;
+        const initialOrientation = isLandscape ? 'landscape' : 'portrait';
+        
+        requestFullscreen();
+        
+        // Xử lý đặc biệt cho Android
+        if (/Android/i.test(navigator.userAgent)) {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(hideAddressBarAndroid, 300 * i);
+            }
+        }
+        // Xử lý đặc biệt cho iOS
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(hideAddressBarIOS, 300 * i);
+            }
+        }
+        
+        setTimeout(() => {
+            updateViewportSize();
+            transitionToContent();
+        }, 1500);
+    }
+
+    function transitionToContent() {
+        document.getElementById('HomeScreen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('HomeScreen').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            if (/Android/i.test(navigator.userAgent)) {
+                hideAddressBarAndroid();
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                hideAddressBarIOS();
+            }
+        }, 500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        preventPullToRefresh();
+        forceInitialPortraitAndFullscreen();
+    });
+
+    window.onload = function() {
+        document.addEventListener('click', requestFullscreen, { once: true });
+
+        if (isMobileDevice()) {
+            document.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        }
+
+        window.addEventListener('resize', () => {
+            updateViewportSize();
+            if (/Android/i.test(navigator.userAgent)) {
+                hideAddressBarAndroid();
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                hideAddressBarIOS();
+            }
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(updateViewportSize, 300);
+            if (/Android/i.test(navigator.userAgent)) {
+                hideAddressBarAndroid();
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                hideAddressBarIOS();
+            }
+        });
+
+        document.addEventListener('touchstart', () => {
+            if (/Android/i.test(navigator.userAgent)) {
+                hideAddressBarAndroid();
+            } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                hideAddressBarIOS();
+            }
+        }, { passive: true });
+
+    };
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+</script>
+</body>
+</html>
