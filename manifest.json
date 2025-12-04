@@ -1,7 +1,7 @@
 {
   "name": "Võ Lâm Mobile",
   "short_name": "Võ Lâm",
-  "start_url": "/index.html",
+  "start_url": "/vltki/index.html",
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#000000",
