@@ -1,106 +1,140 @@
-// --- 1. CONFIG & VARIABLES ---
-const popupAndroid = document.getElementById('popup-android');
+// --- CONFIG ---
+const popup = document.getElementById('popup-android');
 const btnInstall = document.getElementById('btn-install');
-const btnFullscreen = document.getElementById('btn-fullscreen');
+const btnFull = document.getElementById('btn-fullscreen');
 const btnClose = document.getElementById('btn-close');
-const gameContainer = document.getElementById('game-container');
-const statusText = document.getElementById('status-text');
+const container = document.getElementById('game-container');
+const debugLog = document.getElementById('debug-log');
+const installStatus = document.getElementById('install-status');
 
-let deferredPrompt; // Biến lưu sự kiện cài đặt
+// --- 1. BIẾN LƯU SỰ KIỆN CÀI ĐẶT ---
+let deferredPrompt = null;
 
-// Kiểm tra môi trường
-const ua = navigator.userAgent;
-const isAndroid = /Android/i.test(ua);
-const isIOS = /iPhone|iPad|iPod/i.test(ua);
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-// --- 2. SERVICE WORKER ---
+// --- 2. SERVICE WORKER (BẮT BUỘC) ---
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
+    navigator.serviceWorker.register('./sw.js')
+        .then(() => log('SW Registered'))
+        .catch(err => log('SW Error: ' + err));
 }
 
-// --- 3. LOGIC HIỂN THỊ POPUP (CHỈ ANDROID BROWSER) ---
+// --- 3. PHÁT HIỆN MÔI TRƯỜNG ---
+const isAndroid = /Android/i.test(navigator.userAgent);
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+// --- 4. LOGIC HIỂN THỊ POPUP ---
 window.addEventListener('load', () => {
-    // Nếu là Android VÀ KHÔNG PHẢI App đã cài
+    // Chỉ hiện Popup ở Android Browser (chưa cài app)
     if (isAndroid && !isStandalone) {
-        popupAndroid.style.display = 'flex';
+        popup.style.display = 'flex';
     } else {
-        // iOS hoặc PC hoặc App đã cài -> Vào thẳng game
-        statusText.innerText = "Sẵn sàng chiến đấu";
+        // iOS hoặc đã cài App -> Tự full
+        fixLayout();
     }
     
-    checkOrientation(); // Chạy layout lần đầu
-    
-    // Hack cuộn trang cho iOS/Android để giấu thanh địa chỉ (nếu có)
+    // Fix cuộn iOS
     setTimeout(() => window.scrollTo(0, 1), 100);
 });
 
-// --- 4. XỬ LÝ CÁC NÚT BẤM ---
-
-// Nút Đóng Popup
-btnClose.addEventListener('click', () => {
-    popupAndroid.style.display = 'none';
-});
-
-// Nút Fullscreen (Quan trọng để ẩn thanh bottom Android)
-btnFullscreen.addEventListener('click', () => {
-    const doc = document.documentElement;
-    
-    // Gọi API Fullscreen chuẩn
-    const request = doc.requestFullscreen || doc.webkitRequestFullscreen || doc.msRequestFullscreen;
-    
-    if (request) {
-        request.call(doc).then(() => {
-            // Sau khi full, thử khóa xoay màn hình (chỉ Android hỗ trợ)
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(e => console.log('Lock fail:', e));
-            }
-        }).catch(err => console.log('Fullscreen Error:', err));
-    }
-    
-    popupAndroid.style.display = 'none';
-});
-
-// Nút Cài đặt App
-// Lắng nghe sự kiện cài đặt từ Chrome Android
+// --- 5. SỰ KIỆN CÀI ĐẶT (QUAN TRỌNG) ---
+// Lắng nghe ngay lập tức
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
-    // Khi bắt được sự kiện, mới HIỆN nút cài đặt lên
-    btnInstall.style.display = 'block';
+    installStatus.innerText = "Đã sẵn sàng cài đặt!";
+    btnInstall.style.opacity = '1';
+    btnInstall.innerText = "📲 Cài đặt App Ngay";
+    log('Event beforeinstallprompt fired!');
 });
 
+// Xử lý nút Cài đặt
 btnInstall.addEventListener('click', () => {
     if (deferredPrompt) {
+        // Trường hợp 1: Browser hỗ trợ cài tự động
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choice) => {
             if (choice.outcome === 'accepted') {
-                // Người dùng đồng ý cài -> Ẩn popup luôn
-                popupAndroid.style.display = 'none';
+                popup.style.display = 'none';
             }
             deferredPrompt = null;
         });
+    } else {
+        // Trường hợp 2: Sự kiện chưa bắn hoặc không hỗ trợ -> Hướng dẫn thủ công
+        alert("Trình duyệt chưa sẵn sàng tự động cài.\n\nHãy ấn vào dấu 3 chấm (Menu) trên trình duyệt -> Chọn 'Cài đặt ứng dụng' hoặc 'Thêm vào màn hình chính'.");
     }
 });
 
-// --- 5. LOGIC XOAY MÀN HÌNH (Layout Engine) ---
-function checkOrientation() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+// --- 6. NÚT FULLSCREEN & CLOSE ---
+btnFull.addEventListener('click', () => {
+    enterFullscreen();
+    popup.style.display = 'none';
+});
 
-    // Logic: Nếu chiều rộng nhỏ hơn chiều cao (Cầm dọc)
-    if (w < h) {
-        gameContainer.classList.add('force-landscape');
-        statusText.innerText = "Chế độ xoay ngang";
-    } else {
-        gameContainer.classList.remove('force-landscape');
-        statusText.innerText = "Chế độ gốc";
+btnClose.addEventListener('click', () => {
+    popup.style.display = 'none';
+    fixLayout(); // Vẫn chạy layout xoay dù không full
+});
+
+function enterFullscreen() {
+    const doc = document.documentElement;
+    const req = doc.requestFullscreen || doc.webkitRequestFullscreen;
+    if (req) {
+        req.call(doc).then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => log(e));
+            }
+        }).catch(e => log(e));
     }
 }
 
-// Lắng nghe thay đổi kích thước/xoay
-window.addEventListener('resize', checkOrientation);
+// --- 7. FIX LAYOUT FULL VIỀN (MAGIC PIXEL) ---
+function fixLayout() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    
+    // Lấy kích thước VẬT LÝ màn hình (bao gồm cả thanh điều hướng bị ẩn)
+    // screen.width/height luôn không đổi dù có thanh điều hướng hay không
+    const screenW = window.screen.width;
+    const screenH = window.screen.height;
 
-// Chặn kéo lung tung
-document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    const screenInfo = document.getElementById('screen-info');
+    screenInfo.innerText = `View: ${w}x${h} | Screen: ${screenW}x${screenH}`;
+
+    // Phát hiện cầm dọc
+    if (w < h) {
+        // MODE: PORTRAIT -> Cần xoay ngang
+        // Thay vì dùng 100vh, ta dùng screenH (chiều cao vật lý tối đa)
+        
+        // Gán chiều rộng App = Chiều cao vật lý màn hình (để đè lên thanh Home/Nav)
+        container.style.width = screenH + 'px';
+        
+        // Gán chiều cao App = Chiều rộng vật lý màn hình
+        container.style.height = screenW + 'px';
+        
+        // Xoay 90 độ và đẩy nó vào vị trí
+        container.style.transform = `rotate(90deg) translateY(-100%)`;
+        
+        // Thêm class fix viền
+        container.classList.add('fix-gap');
+        
+    } else {
+        // MODE: LANDSCAPE -> Đã ngang sẵn
+        container.style.width = screenW + 'px';
+        container.style.height = screenH + 'px';
+        container.style.transform = 'none';
+        container.classList.remove('fix-gap');
+    }
+}
+
+// Chạy liên tục để bắt resize (khi thanh địa chỉ ẩn hiện)
+window.addEventListener('resize', fixLayout);
+setInterval(fixLayout, 500); // Check định kỳ cho chắc ăn
+
+// Debug logger
+function log(msg) {
+    console.log(msg);
+    debugLog.innerText += msg + '\n'; // Bỏ comment nếu muốn xem log trên màn hình
+}
+
+// Chặn kéo
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
