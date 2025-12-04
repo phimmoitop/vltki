@@ -1,12 +1,11 @@
 {
   "name": "Võ Lâm Truyền Kỳ",
   "short_name": "Võ Lâm Truyền Kỳ",
-  "start_url": "./index.html", 
+  "start_url": "/vltkii/index.html", 
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
-  "scope": ".",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3408/3408506.png",
