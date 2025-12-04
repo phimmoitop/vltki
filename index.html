@@ -2,45 +2,48 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- CHÌA KHÓA TRÀN VIỀN -->
+    <!-- Viewport fit cover: QUAN TRỌNG NHẤT CHO IOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Status bar trong suốt để nội dung đè lên -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
-    <meta name="format-detection" content="telephone=no">
-    
-    <title>Auto Full Landscape</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+
+    <title>Game Fullscreen</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <!-- GAME STAGE: Nơi chứa toàn bộ game/app -->
-    <div id="stage">
-        <div id="content-wrapper">
-            <!-- Background Game -->
-            <div class="game-bg"></div>
-            
-            <!-- UI Game -->
-            <div class="ui-layer">
-                <div class="top-bar">
-                    <span class="avatar">👤</span>
-                    <span class="info">Lực chiến: 999.999</span>
-                </div>
-                
-                <div class="center-msg">
-                    <h1>VÕ LÂM WEB</h1>
-                    <p id="debug-info">Đang tải tài nguyên...</p>
-                </div>
 
-                <div class="bottom-controls">
-                    <button class="skill-btn">⚔️</button>
-                    <button class="skill-btn">🔥</button>
-                    <button class="skill-btn">⚡</button>
-                </div>
+    <!-- Nút cài đặt cho Android (Ẩn mặc định) -->
+    <button id="install-btn">📲 Cài đặt App</button>
+
+    <!-- Overlay cho Android Browser (Để kích hoạt Fullscreen khi chưa cài App) -->
+    <div id="android-overlay">
+        <span>Chạm để vào Full màn hình</span>
+    </div>
+
+    <!-- Khung chứa Game -->
+    <div id="game-container">
+        <!-- Background tràn viền -->
+        <div class="bg-layer"></div>
+        
+        <!-- UI Nội dung -->
+        <div class="ui-content">
+            <div class="header">
+                <div class="user-info">Hiệp Khách</div>
+            </div>
+            <div class="center-stage">
+                <h1>VÕ LÂM WEB</h1>
+                <p>Chế độ: <span id="mode-debug">Chào Mừng Đến Thê Giới Võ Lâm Truyền Kỳ</span></p>
+            </div>
+            <div class="controls">
+                <div class="btn-skill">Skill 1</div>
+                <div class="btn-skill">Skill 2</div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
