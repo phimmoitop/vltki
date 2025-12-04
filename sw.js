@@ -1,10 +1,10 @@
-const CACHE_NAME = 'VLTK';
+const CACHE_NAME = 'VLTKi';
 const ASSETS = [
-    './',
-    './index.html',
-    './style.css',
-    './script.js',
-    './manifest.json'
+    '/vltkii/',
+    '/vltkii/index.html',
+    '/vltkii/style.css',
+    '/vltkii/script.js',
+    '/vltkii/manifest.json'
 ];
 
 // Cài đặt SW và Cache file
