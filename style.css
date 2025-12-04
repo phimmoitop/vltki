@@ -1,72 +1,54 @@
-/* Reset */
 * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
 
+/* Body khóa chết, nền đen tuyệt đối */
 html, body {
     width: 100%; height: 100%;
-    background: #000;
+    background-color: #000;
     overflow: hidden;
     position: fixed; inset: 0;
+    z-index: 0;
 }
 
-/* --- POPUP ANDROID --- */
+/* POPUP STYLE */
 #popup-android {
-    display: none; /* Mặc định ẩn, JS sẽ bật nếu là Android Browser */
-    position: fixed; z-index: 99999;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
+    display: none; /* JS sẽ bật */
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
     justify-content: center; align-items: center;
-    backdrop-filter: blur(5px);
 }
-
 .popup-box {
-    background: #222;
-    padding: 25px;
-    border-radius: 15px;
-    width: 90%; max-width: 400px;
-    text-align: center;
-    color: white;
-    border: 1px solid #444;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #1a1a1a; padding: 20px; border-radius: 12px;
+    width: 90%; max-width: 350px; text-align: center; color: white; border: 1px solid #333;
 }
+.popup-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+.btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 16px; }
+.primary { background: #ffd700; color: black; }
+.secondary { background: #2196f3; color: white; }
+.outline { background: transparent; border: 1px solid #666; color: #aaa; }
+.debug-msg { font-size: 10px; color: #555; margin-top: 10px; }
 
-.popup-box h3 { margin-bottom: 10px; color: gold; text-transform: uppercase;}
-.popup-box p { margin-bottom: 20px; color: #ccc; font-size: 0.9rem;}
-
-.popup-actions { display: flex; flex-direction: column; gap: 10px; }
-
-.btn {
-    padding: 12px; border: none; border-radius: 8px;
-    font-size: 1rem; font-weight: bold; cursor: pointer;
-    transition: transform 0.2s;
-}
-.btn:active { transform: scale(0.95); }
-
-.primary { background: #ffcc00; color: #000; } /* Nút Cài đặt */
-.secondary { background: #007acc; color: white; } /* Nút Fullscreen */
-.outline { background: transparent; border: 1px solid #666; color: #999; } /* Nút Đóng */
-
-/* --- GAME CONTAINER & XOAY --- */
+/* GAME CONTAINER */
 #game-container {
-    position: absolute; top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    position: absolute;
     background: #000;
+    overflow: hidden;
+    /* Mặc định chưa set size, JS sẽ set pixel cứng */
+    top: 0; left: 0;
     transform-origin: top left;
-    transition: transform 0.3s;
+    transition: width 0.1s, height 0.1s; /* Mượt nhẹ */
 }
 
 /* UI Demo */
-.bg-layer { position: absolute; inset: 0; background: url('https://picsum.photos/1920/1080') center/cover; opacity: 0.6; }
+.bg-layer { position: absolute; inset: 0; background: url('https://picsum.photos/1000/600') center/cover; opacity: 0.5; }
 .ui-content { position: relative; width: 100%; height: 100%; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
-.header { color: gold; font-weight: bold; border: 1px solid gold; padding: 5px 15px; background: rgba(0,0,0,0.6); align-self: flex-start; }
-.center-stage { text-align: center; color: white; }
+.header { display: flex; gap: 10px; align-items: center; color: white; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 20px; align-self: flex-start;}
+.center-stage { text-align: center; color: white; text-shadow: 0 0 10px red; }
 .controls { align-self: flex-end; display: flex; gap: 15px; }
-.skill-btn { width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, red, darkred); border: 2px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;}
+.btn-circle { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid white; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;}
 
-/* --- CLASS XỬ LÝ XOAY --- */
-/* Khi cầm dọc -> Xoay ngang */
-.force-landscape {
-    width: 100vh !important;
-    height: 100vw !important;
-    transform: rotate(90deg) translateY(-100%);
-    /* translateY(-100%) đẩy khung hình lên trên (tức là sang phải sau khi xoay) */
+/* CSS TRÀN VIỀN */
+/* Khi container bị xoay, ta cần đảm bảo nó to hơn màn hình một chút để che lỗi */
+.fix-gap {
+    box-shadow: 0 0 0 50px #000; /* Viền đen ảo bao quanh để che khe hở nếu có */
 }
