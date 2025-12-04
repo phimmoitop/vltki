@@ -1,140 +1,92 @@
-// --- CONFIG ---
+// CONFIG
 const popup = document.getElementById('popup-android');
 const btnInstall = document.getElementById('btn-install');
 const btnFull = document.getElementById('btn-fullscreen');
 const btnClose = document.getElementById('btn-close');
 const container = document.getElementById('game-container');
-const debugLog = document.getElementById('debug-log');
-const installStatus = document.getElementById('install-status');
+const statusDebug = document.getElementById('status-debug');
 
-// --- 1. BIẾN LƯU SỰ KIỆN CÀI ĐẶT ---
 let deferredPrompt = null;
 
-// --- 2. SERVICE WORKER (BẮT BUỘC) ---
+// 1. SW Register
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-        .then(() => log('SW Registered'))
-        .catch(err => log('SW Error: ' + err));
+    navigator.serviceWorker.register('./sw.js');
 }
 
-// --- 3. PHÁT HIỆN MÔI TRƯỜNG ---
+// 2. CHECK MOI TRUONG
 const isAndroid = /Android/i.test(navigator.userAgent);
-const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
-// --- 4. LOGIC HIỂN THỊ POPUP ---
 window.addEventListener('load', () => {
-    // Chỉ hiện Popup ở Android Browser (chưa cài app)
+    // Nếu là Android Browser (chưa cài App) -> Hiện Popup
     if (isAndroid && !isStandalone) {
         popup.style.display = 'flex';
     } else {
-        // iOS hoặc đã cài App -> Tự full
-        fixLayout();
+        statusDebug.innerText = "Chế độ App / iOS / PC";
     }
     
-    // Fix cuộn iOS
+    checkOrientation();
     setTimeout(() => window.scrollTo(0, 1), 100);
 });
 
-// --- 5. SỰ KIỆN CÀI ĐẶT (QUAN TRỌNG) ---
-// Lắng nghe ngay lập tức
+// 3. LOGIC INSTALL APP (FIX)
+// Lắng nghe sự kiện từ trình duyệt
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Ngăn popup mặc định của Chrome
     deferredPrompt = e;
-    installStatus.innerText = "Đã sẵn sàng cài đặt!";
-    btnInstall.style.opacity = '1';
-    btnInstall.innerText = "📲 Cài đặt App Ngay";
-    log('Event beforeinstallprompt fired!');
+    
+    // KHI BẮT ĐƯỢC SỰ KIỆN -> MỚI HIỆN NÚT
+    btnInstall.style.display = 'block';
+    console.log("Install prompt captured!");
 });
 
-// Xử lý nút Cài đặt
 btnInstall.addEventListener('click', () => {
     if (deferredPrompt) {
-        // Trường hợp 1: Browser hỗ trợ cài tự động
-        deferredPrompt.prompt();
+        deferredPrompt.prompt(); // Hiện hộp thoại cài đặt hệ thống
         deferredPrompt.userChoice.then((choice) => {
             if (choice.outcome === 'accepted') {
-                popup.style.display = 'none';
+                popup.style.display = 'none'; // Người dùng đồng ý -> tắt popup
             }
             deferredPrompt = null;
         });
-    } else {
-        // Trường hợp 2: Sự kiện chưa bắn hoặc không hỗ trợ -> Hướng dẫn thủ công
-        alert("Trình duyệt chưa sẵn sàng tự động cài.\n\nHãy ấn vào dấu 3 chấm (Menu) trên trình duyệt -> Chọn 'Cài đặt ứng dụng' hoặc 'Thêm vào màn hình chính'.");
     }
 });
 
-// --- 6. NÚT FULLSCREEN & CLOSE ---
+// 4. LOGIC FULLSCREEN & CLOSE
 btnFull.addEventListener('click', () => {
-    enterFullscreen();
+    const doc = document.documentElement;
+    // Yêu cầu Fullscreen
+    const req = doc.requestFullscreen || doc.webkitRequestFullscreen;
+    if (req) {
+        req.call(doc).then(() => {
+            // Khi đã full -> Thử lock xoay
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(() => {});
+            }
+        }).catch(err => console.log(err));
+    }
     popup.style.display = 'none';
 });
 
 btnClose.addEventListener('click', () => {
     popup.style.display = 'none';
-    fixLayout(); // Vẫn chạy layout xoay dù không full
 });
 
-function enterFullscreen() {
-    const doc = document.documentElement;
-    const req = doc.requestFullscreen || doc.webkitRequestFullscreen;
-    if (req) {
-        req.call(doc).then(() => {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(e => log(e));
-            }
-        }).catch(e => log(e));
-    }
-}
-
-// --- 7. FIX LAYOUT FULL VIỀN (MAGIC PIXEL) ---
-function fixLayout() {
+// 5. LOGIC XOAY & FIX LAYOUT
+function checkOrientation() {
     const w = window.innerWidth;
     const h = window.innerHeight;
-    
-    // Lấy kích thước VẬT LÝ màn hình (bao gồm cả thanh điều hướng bị ẩn)
-    // screen.width/height luôn không đổi dù có thanh điều hướng hay không
-    const screenW = window.screen.width;
-    const screenH = window.screen.height;
 
-    const screenInfo = document.getElementById('screen-info');
-    screenInfo.innerText = `View: ${w}x${h} | Screen: ${screenW}x${screenH}`;
-
-    // Phát hiện cầm dọc
     if (w < h) {
-        // MODE: PORTRAIT -> Cần xoay ngang
-        // Thay vì dùng 100vh, ta dùng screenH (chiều cao vật lý tối đa)
-        
-        // Gán chiều rộng App = Chiều cao vật lý màn hình (để đè lên thanh Home/Nav)
-        container.style.width = screenH + 'px';
-        
-        // Gán chiều cao App = Chiều rộng vật lý màn hình
-        container.style.height = screenW + 'px';
-        
-        // Xoay 90 độ và đẩy nó vào vị trí
-        container.style.transform = `rotate(90deg) translateY(-100%)`;
-        
-        // Thêm class fix viền
-        container.classList.add('fix-gap');
-        
+        // Cầm dọc -> Xoay
+        container.classList.add('force-landscape');
+        statusDebug.innerText = "Chế độ: Xoay Ngang";
     } else {
-        // MODE: LANDSCAPE -> Đã ngang sẵn
-        container.style.width = screenW + 'px';
-        container.style.height = screenH + 'px';
-        container.style.transform = 'none';
-        container.classList.remove('fix-gap');
+        // Cầm ngang -> Giữ nguyên
+        container.classList.remove('force-landscape');
+        statusDebug.innerText = "Chế độ: Gốc";
     }
 }
 
-// Chạy liên tục để bắt resize (khi thanh địa chỉ ẩn hiện)
-window.addEventListener('resize', fixLayout);
-setInterval(fixLayout, 500); // Check định kỳ cho chắc ăn
-
-// Debug logger
-function log(msg) {
-    console.log(msg);
-    debugLog.innerText += msg + '\n'; // Bỏ comment nếu muốn xem log trên màn hình
-}
-
-// Chặn kéo
+window.addEventListener('resize', checkOrientation);
 document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
