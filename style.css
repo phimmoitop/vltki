@@ -1,105 +1,72 @@
-/* Reset cứng */
-* {
-    box-sizing: border-box;
-    margin: 0; padding: 0;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
+/* Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
 
 html, body {
     width: 100%; height: 100%;
-    background-color: #000; /* Nền đen để che lấp mọi khe hở nếu có */
-    overflow: hidden;
-    position: fixed;
-    inset: 0;
-}
-
-/* Nút cài đặt nổi bật */
-#install-btn {
-    display: none; /* Mặc định ẩn */
-    position: fixed;
-    top: 20px; left: 50%;
-    transform: translateX(-50%);
-    z-index: 99999;
-    background: #ffcc00;
-    color: #000;
-    border: 2px solid #fff;
-    padding: 10px 20px;
-    font-weight: bold;
-    border-radius: 30px;
-    box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.1); }
-    100% { transform: translateX(-50%) scale(1); }
-}
-
-/* Overlay Android */
-#android-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.8);
-    z-index: 10000;
-    display: none; /* Chỉ hiện qua JS nếu cần */
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 1.2rem;
-}
-
-/* CONTAINER CHÍNH */
-#game-container {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    transform-origin: center center; /* Tâm xoay mặc định */
     background: #000;
+    overflow: hidden;
+    position: fixed; inset: 0;
 }
 
-/* --- LOGIC XOAY --- */
-
-/* Mặc định (Landscape): Không làm gì cả */
-.mode-landscape {
-    width: 100vw !important;
-    height: 100vh !important;
-    transform: none;
+/* --- POPUP ANDROID --- */
+#popup-android {
+    display: none; /* Mặc định ẩn, JS sẽ bật nếu là Android Browser */
+    position: fixed; z-index: 99999;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
 }
 
-/* Khi thiết bị DỌC (Portrait) -> Xoay container */
-.mode-portrait {
-    /* Đảo chiều kích thước: Rộng = Cao màn hình, Cao = Rộng màn hình */
-    width: 100vh !important;
-    height: 100vw !important;
-    
-    /* Xoay 90 độ */
-    transform: rotate(90deg);
-    
-    /* Căn chỉnh lại vị trí sau khi xoay */
-    /* Tâm xoay là góc trên trái cho dễ tính toán */
+.popup-box {
+    background: #222;
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%; max-width: 400px;
+    text-align: center;
+    color: white;
+    border: 1px solid #444;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.popup-box h3 { margin-bottom: 10px; color: gold; text-transform: uppercase;}
+.popup-box p { margin-bottom: 20px; color: #ccc; font-size: 0.9rem;}
+
+.popup-actions { display: flex; flex-direction: column; gap: 10px; }
+
+.btn {
+    padding: 12px; border: none; border-radius: 8px;
+    font-size: 1rem; font-weight: bold; cursor: pointer;
+    transition: transform 0.2s;
+}
+.btn:active { transform: scale(0.95); }
+
+.primary { background: #ffcc00; color: #000; } /* Nút Cài đặt */
+.secondary { background: #007acc; color: white; } /* Nút Fullscreen */
+.outline { background: transparent; border: 1px solid #666; color: #999; } /* Nút Đóng */
+
+/* --- GAME CONTAINER & XOAY --- */
+#game-container {
+    position: absolute; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #000;
     transform-origin: top left;
-    
-    /* Dịch chuyển container sang phải để khớp màn hình */
-    position: absolute;
-    top: 0;
-    left: 100%; /* Đẩy sang hết bên phải (chiều rộng cũ) */
+    transition: transform 0.3s;
 }
 
 /* UI Demo */
-.bg-layer {
-    position: absolute; inset: 0;
-    background: url('https://p21-ad-sg.ibyteimg.com/obj/ad-site-i18n-sg/202503245d0d74bd2ee44c344134a5d6') center/cover no-repeat;
-    opacity: 0.6;
-}
-.ui-content {
-    position: relative; width: 100%; height: 100%;
-    display: flex; flex-direction: column; justify-content: space-between; padding: 20px;
-}
-.header { border: 1px solid gold; padding: 10px; width: fit-content; background: rgba(0,0,0,0.5); color: gold;}
+.bg-layer { position: absolute; inset: 0; background: url('https://picsum.photos/1920/1080') center/cover; opacity: 0.6; }
+.ui-content { position: relative; width: 100%; height: 100%; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+.header { color: gold; font-weight: bold; border: 1px solid gold; padding: 5px 15px; background: rgba(0,0,0,0.6); align-self: flex-start; }
 .center-stage { text-align: center; color: white; }
-.controls { display: flex; gap: 20px; align-self: flex-end; }
-.btn-skill { width: 60px; height: 60px; background: red; border-radius: 50%; border: 2px solid white; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;}
+.controls { align-self: flex-end; display: flex; gap: 15px; }
+.skill-btn { width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, red, darkred); border: 2px solid white; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;}
+
+/* --- CLASS XỬ LÝ XOAY --- */
+/* Khi cầm dọc -> Xoay ngang */
+.force-landscape {
+    width: 100vh !important;
+    height: 100vw !important;
+    transform: rotate(90deg) translateY(-100%);
+    /* translateY(-100%) đẩy khung hình lên trên (tức là sang phải sau khi xoay) */
+}
