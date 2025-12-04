@@ -2,44 +2,48 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport fit cover: QUAN TRỌNG NHẤT CHO IOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
-
-    <title>Game Fullscreen</title>
+    <title>Võ Lâm Mobile Web</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <!-- Nút cài đặt cho Android (Ẩn mặc định) -->
-    <button id="install-btn">📲 Cài đặt App</button>
-
-    <!-- Overlay cho Android Browser (Để kích hoạt Fullscreen khi chưa cài App) -->
-    <div id="android-overlay">
-        <span>Chạm để vào Full màn hình</span>
+    <!-- POPUP DÀNH RIÊNG CHO ANDROID BROWSER -->
+    <div id="popup-android">
+        <div class="popup-box">
+            <h3>Cấu hình hiển thị</h3>
+            <p>Để có trải nghiệm tốt nhất, hãy chọn chế độ chơi:</p>
+            
+            <div class="popup-actions">
+                <!-- Nút 1: Cài đặt (Mặc định ẩn, hiện khi sẵn sàng) -->
+                <button id="btn-install" class="btn primary" style="display:none;">📲 Cài đặt App</button>
+                
+                <!-- Nút 2: Fullscreen -->
+                <button id="btn-fullscreen" class="btn secondary">⛶ Chơi Full Screen</button>
+                
+                <!-- Nút 3: Đóng -->
+                <button id="btn-close" class="btn outline">✕ Đóng (Chơi thường)</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Khung chứa Game -->
+    <!-- GAME STAGE -->
     <div id="game-container">
-        <!-- Background tràn viền -->
         <div class="bg-layer"></div>
-        
-        <!-- UI Nội dung -->
         <div class="ui-content">
             <div class="header">
-                <div class="user-info">Hiệp Khách</div>
+                <span>⚔️ Hiệp Khách</span>
             </div>
             <div class="center-stage">
                 <h1>VÕ LÂM WEB</h1>
-                <p>Chế độ: <span id="mode-debug">Chào Mừng Đến Thê Giới Võ Lâm Truyền Kỳ</span></p>
+                <p>Status: <span id="status-text">Đang tải...</span></p>
             </div>
             <div class="controls">
-                <div class="btn-skill">Skill 1</div>
-                <div class="btn-skill">Skill 2</div>
+                <div class="skill-btn">Skill 1</div>
+                <div class="skill-btn">Skill 2</div>
             </div>
         </div>
     </div>
