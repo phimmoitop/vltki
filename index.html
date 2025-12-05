@@ -111,7 +111,7 @@ main {
     border: 2px dashed #555;
 }
 </style>
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/vltkii/manifest.json">
     <meta name="theme-color" content="#1e1e1e">
 </head>
 <body>
@@ -141,7 +141,7 @@ main {
 // Đăng ký Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
+        navigator.serviceWorker.register('/vltkii/sw.js')
             .then(reg => console.log('Service Worker đã đăng ký!', reg))
             .catch(err => console.log('Lỗi SW:', err));
     });
