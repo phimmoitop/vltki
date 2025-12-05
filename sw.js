@@ -1,4 +1,4 @@
-const CACHE_NAME = 'VLTKi';
+const CACHE_NAME = 'VLTKii';
 const ASSETS = [
     '/vltkii/',
     '/vltkii/index.html',
